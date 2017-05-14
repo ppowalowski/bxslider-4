@@ -1109,15 +1109,18 @@
         slider.touch.start.x = touchPoints[0].pageX;
         slider.touch.start.y = touchPoints[0].pageY;
 
-        if (slider.viewport.get(0).setPointerCapture) {
+        if (slider.viewport.get(0).setPointerCapture && (typeof orig.pointerId !== 'undefined')) {
           slider.pointerId = orig.pointerId;
           slider.viewport.get(0).setPointerCapture(slider.pointerId);
         }
-        // bind a "touchmove" event to the viewport
-        slider.viewport.bind('touchmove MSPointerMove pointermove', onTouchMove);
-        // bind a "touchend" event to the viewport
-        slider.viewport.bind('touchend MSPointerUp pointerup', onTouchEnd);
-        slider.viewport.bind('MSPointerCancel pointercancel', onPointerCancel);
+        if(!slider.bound){
+            // bind a "touchmove" event to the viewport
+           slider.viewport.bind('touchmove MSPointerMove pointermove', onTouchMove);
+           // bind a "touchend" event to the viewport
+           slider.viewport.bind('touchend MSPointerUp pointerup', onTouchEnd);
+           slider.viewport.bind('MSPointerCancel pointercancel', onPointerCancel);
+           slider.bound = true;   
+        }
       }
     };
 
@@ -1186,6 +1189,7 @@
      */
     var onTouchEnd = function(e) {
       slider.viewport.unbind('touchmove MSPointerMove pointermove', onTouchMove);
+      slider.bound = false;
       //enable slider controls as soon as user stops interacing with slides
       slider.controls.el.removeClass('disabled');
       var orig    = e.originalEvent,
